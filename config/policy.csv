@@ -1,0 +1,37 @@
+
+p, unauthorized, /swagger/*, GET
+p, unauthorized, /v1/auth/*, GET|POST
+
+
+p, user, /v1/user/*, PUT|DELETE
+p, user, /v1/user/:id, GET
+p, admin, /v1/user/*, GET|POST|PUT|DELETE
+
+p, user, /v1/notification/*, GET|POST|PUT|DELETE
+p, user, /v1/notification/:id, GET
+p, admin, /v1/notification/*, GET|POST|PUT|DELETE
+
+p, user, /v1/session/*, GET|DELETE
+p, admin, /v1/session/*, GET|POST|PUT|DELETE
+
+p, user, /v1/firebase/*, POST|DELETE
+p, admin, /v1/firebase/*, POST|DELETE
+
+p, user, /v1/promotion/:id, GET
+p, admin, /v1/promotion/*, GET|POST|PUT|DELETE
+
+p, user, /v1/report/*, GET|POST|PUT|DELETE
+p, admin, /v1/report/*, GET|POST|PUT|DELETE
+
+p, user, /v1/category/*, GET
+p, admin, /v1/category/*, GET|POST|PUT|DELETE
+
+p, user, /v1/product/*, GET
+p, admin, /v1/product/*, GET|POST|PUT|DELETE
+
+p, user, /v1/banner/*, GET
+p, admin, /v1/banner/*, GET|POST|PUT|DELETE
+
+g, user, unauthorized
+g, admin, user
+g, superadmin, admin

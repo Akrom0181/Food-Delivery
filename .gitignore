@@ -1,0 +1,46 @@
+# IDE
+.idea/
+.vscode/
+
+# Config
+.env
+serviceAccountKey.json
+
+# Logs and Backups
+*.log
+*.bak
+*.swp
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Go Output
+*.out
+/go.sum
+
+# Vendor directory
+/vendor/
+
+# macOS
+.DS_Store
+
+# Docker
+.env
+docker-compose.override.yml
+.dockerignore
+
+# Kubernetes
+*.kube
+
+# Certificates and Keys
+*.key
+*.crt
+*.pem

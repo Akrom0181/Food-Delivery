@@ -1,0 +1,88 @@
+# services:
+#   app1:
+#     build: .
+#     container_name: yelp1
+#     env_file:
+#       - .env
+#     mem_limit: 1G
+#     mem_reservation: 512m
+#     cpuset: "0"
+#     cpu_period: 100000
+#     cpu_quota: 50000
+#     ports:
+#       - 9091:9090
+#     networks:
+#       - yelp
+
+#   app2:
+#     build: .
+#     container_name: yelp2
+#     env_file:
+#       - .env
+#     mem_limit: 1G
+#     mem_reservation: 512M
+#     cpuset: "1"
+#     cpu_period: 100000
+#     cpu_quota: 50000
+#     ports:
+#       - 9092:9090
+#     networks:
+#       - yelp
+
+#   app3:
+#     build: .
+#     container_name: yelp3
+#     env_file:
+#       - .env
+#     mem_limit: 1G
+#     mem_reservation: 512M
+#     cpuset: "2"
+#     cpu_period: 100000
+#     cpu_quota: 50000
+#     ports:
+#       - 9093:9090
+#     networks:
+#       - yelp
+
+#   nginx:
+#     image: nginx:latest
+#     container_name: yelp-nginx
+#     volumes:
+#       - ./nginx.conf:/etc/nginx/nginx.conf
+#     ports:
+#       - 80:80
+#     depends_on:
+#       - app1
+#       - app2
+#       - app3
+#     networks:
+#       - yelp
+
+# networks:
+#   yelp:
+#     external: true
+
+
+
+
+
+
+services:
+  app:
+    build: .
+    container_name: food-delivery
+    env_file:
+      - .env
+    mem_limit: 512m
+    mem_reservation: 256m
+    cpus: 0.5  
+    ports:
+      - 9090:9090
+    networks:
+      - food-delivery
+
+
+networks:
+  food-delivery: 
+    external: true
+

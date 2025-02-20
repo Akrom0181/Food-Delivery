@@ -1,0 +1,30 @@
+services:
+  fooddb:
+    image: postgres:latest
+    container_name: fooddb
+    environment:
+      POSTGRES_USER: fooddb
+      POSTGRES_PASSWORD: fooddb_secret  
+      POSTGRES_DB: fooddb
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - food-delivery
+
+  food-redis:
+    image: redis:latest
+    container_name: food-redis
+    ports:
+      - "6378:6379"
+    networks:
+      - food-delivery
+      
+      
+networks:
+  food-delivery: 
+    external: true
+
+volumes:
+  postgres_data:

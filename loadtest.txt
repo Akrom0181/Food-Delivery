@@ -1,0 +1,22 @@
+Vertical Scaling 
+
+10% cpu 512mg ram 100vus = 63 99.79%
+20% cpu 512mg ram 100vus = 178 100%
+20% cpu 512mg ram 200vus = 166 99.88%
+50% cpu 512mg ram 200vus = 530 100%
+50% cpu 512mg ram 500vus = 499 99.98%
+50% cpu 512mg ram 1000vus = 444.7 98.32%
+
+
+
+
+Horizontal Scaling
+
+3 ta server one 10%cpu  64mb ram 500 vus =  305.046997  98.33%
+3 ta server one 20%cpu  1GB  ram 1000 vus = 765.765126  99.06%
+3 ta server one 20%cpu  1GB  ram 2000 vus = 1449.309938  49.77%
+3 ta server seperate cpu core 50%cpu  1GB  ram 2000 vus = 1482.833363  82.67%
+
+
+
+

@@ -130,4 +130,37 @@ func NewRouter(engine *gin.Engine, l *logger.Logger, config *config.Config, useC
 		banner.PUT("/", handlerV1.UpdateBanner)
 		banner.DELETE("/:id", handlerV1.DeleteBanner)
 	}
+
+	branch := v1.Group("/branch")
+	{
+		branch.POST("/", handlerV1.CreateBranch)
+		branch.GET("/list", handlerV1.GetBranches)
+		branch.GET("/:id", handlerV1.GetBranch)
+		branch.PUT("/", handlerV1.UpdateBranch)
+		branch.DELETE("/:id", handlerV1.DeleteBranch)
+	}
+
+	user_location := v1.Group("/user/location")
+	{
+		user_location.POST("/", handlerV1.CreateUserLocation)
+		user_location.GET("/list", handlerV1.GetUserLocations)
+		user_location.GET("/:id", handlerV1.GetUserLocation)
+		user_location.PUT("/", handlerV1.UpdateUserLocation)
+		user_location.DELETE("/:id", handlerV1.DeleteUserLocation)
+	}
+
+	order := v1.Group("/order")
+	{
+		order.POST("/", handlerV1.CreateOrder)
+		order.GET("/list", handlerV1.GetOrders)
+		order.GET("/:id", handlerV1.GetOrder)
+		order.PUT("/", handlerV1.UpdateOrder)
+		order.DELETE("/:id", handlerV1.DeleteOrder)
+		order.GET("/bybranch", handlerV1.GetBranchOrders)
+	}
+
+	// courier := v1.Group("/courier")
+	// {
+	// 	courier.POST("/", handlerV1.AssignCourierToOrder)
+	// }
 }

@@ -30,14 +30,14 @@ func NewProductRepo(pg *postgres.Postgres, config *config.Config, logger *logger
 func (r *ProductRepo) Create(ctx context.Context, req entity.Product) (entity.Product, error) {
 	req.Id = uuid.NewString()
 
-	qeury, args, err := r.pg.Builder.Insert("product").
+	query, args, err := r.pg.Builder.Insert("product").
 		Columns(`id, category_id, name, description, price, image_url`).
 		Values(req.Id, req.CategoryId, req.Name, req.Description, req.Price, req.ImageUrl).ToSql()
 	if err != nil {
 		return entity.Product{}, err
 	}
 
-	_, err = r.pg.Pool.Exec(ctx, qeury, args...)
+	_, err = r.pg.Pool.Exec(ctx, query, args...)
 	if err != nil {
 		return entity.Product{}, err
 	}
@@ -51,23 +51,23 @@ func (r *ProductRepo) GetSingle(ctx context.Context, req entity.Id) (entity.Prod
 		createdAt, updatedAt time.Time
 	)
 
-	qeuryBuilder := r.pg.Builder.
+	queryBuilder := r.pg.Builder.
 		Select(`id, category_id, name, description, price, image_url, created_at, updated_at`).
 		From("product")
 
 	switch {
 	case req.ID != "":
-		qeuryBuilder = qeuryBuilder.Where("id = ?", req.ID)
+		queryBuilder = queryBuilder.Where("id = ?", req.ID)
 	default:
 		return entity.Product{}, fmt.Errorf("GetSingle - invalid request")
 	}
 
-	qeury, args, err := qeuryBuilder.ToSql()
+	query, args, err := queryBuilder.ToSql()
 	if err != nil {
 		return entity.Product{}, err
 	}
 
-	err = r.pg.Pool.QueryRow(ctx, qeury, args...).
+	err = r.pg.Pool.QueryRow(ctx, query, args...).
 		Scan(&response.Id, &response.CategoryId, &response.Name, &response.Description, &response.Price, &response.ImageUrl, &createdAt, &updatedAt)
 	if err != nil {
 		return entity.Product{}, err
@@ -85,18 +85,18 @@ func (r *ProductRepo) GetList(ctx context.Context, req entity.GetListFilter) (en
 		createdAt, updatedAt time.Time
 	)
 
-	qeuryBuilder := r.pg.Builder.
+	queryBuilder := r.pg.Builder.
 		Select(`id, category_id, name, description, price, image_url, created_at, updated_at`).
 		From("product")
 
-	qeuryBuilder, where := PrepareGetListQuery(qeuryBuilder, req)
+	queryBuilder, where := PrepareGetListQuery(queryBuilder, req)
 
-	qeury, args, err := qeuryBuilder.ToSql()
+	query, args, err := queryBuilder.ToSql()
 	if err != nil {
 		return response, err
 	}
 
-	rows, err := r.pg.Pool.Query(ctx, qeury, args...)
+	rows, err := r.pg.Pool.Query(ctx, query, args...)
 	if err != nil {
 		return response, err
 	}
@@ -137,12 +137,12 @@ func (r *ProductRepo) Update(ctx context.Context, req entity.Product) (entity.Pr
 		"updated_at":  "now()",
 	}
 
-	qeury, args, err := r.pg.Builder.Update("product").SetMap(mp).Where("id = ?", req.Id).ToSql()
+	query, args, err := r.pg.Builder.Update("product").SetMap(mp).Where("id = ?", req.Id).ToSql()
 	if err != nil {
 		return entity.Product{}, err
 	}
 
-	_, err = r.pg.Pool.Exec(ctx, qeury, args...)
+	_, err = r.pg.Pool.Exec(ctx, query, args...)
 	if err != nil {
 		return entity.Product{}, err
 	}
@@ -151,12 +151,12 @@ func (r *ProductRepo) Update(ctx context.Context, req entity.Product) (entity.Pr
 }
 
 func (r *ProductRepo) Delete(ctx context.Context, req entity.Id) error {
-	qeury, args, err := r.pg.Builder.Delete("product").Where("id = ?", req.ID).ToSql()
+	query, args, err := r.pg.Builder.Delete("product").Where("id = ?", req.ID).ToSql()
 	if err != nil {
 		return err
 	}
 
-	_, err = r.pg.Pool.Exec(ctx, qeury, args...)
+	_, err = r.pg.Pool.Exec(ctx, query, args...)
 	if err != nil {
 		return err
 	}
@@ -172,12 +172,12 @@ func (r *ProductRepo) UpdateField(ctx context.Context, req entity.UpdateFieldReq
 		mp[item.Column] = item.Value
 	}
 
-	qeury, args, err := r.pg.Builder.Update("product").SetMap(mp).Where(PrepareFilter(req.Filter)).ToSql()
+	query, args, err := r.pg.Builder.Update("product").SetMap(mp).Where(PrepareFilter(req.Filter)).ToSql()
 	if err != nil {
 		return response, err
 	}
 
-	n, err := r.pg.Pool.Exec(ctx, qeury, args...)
+	n, err := r.pg.Pool.Exec(ctx, query, args...)
 	if err != nil {
 		return response, err
 	}

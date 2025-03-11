@@ -30,14 +30,14 @@ func NewBannerRepo(pg *postgres.Postgres, config *config.Config, logger *logger.
 func (r *BannerRepo) Create(ctx context.Context, req entity.Banner) (entity.Banner, error) {
 	req.Id = uuid.NewString()
 
-	qeury, args, err := r.pg.Builder.Insert("banner").
+	query, args, err := r.pg.Builder.Insert("banner").
 		Columns(`id, title, image_url`).
 		Values(req.Id, req.Title, req.ImageUrl).ToSql()
 	if err != nil {
 		return entity.Banner{}, err
 	}
 
-	_, err = r.pg.Pool.Exec(ctx, qeury, args...)
+	_, err = r.pg.Pool.Exec(ctx, query, args...)
 	if err != nil {
 		return entity.Banner{}, err
 	}
@@ -51,23 +51,23 @@ func (r *BannerRepo) GetSingle(ctx context.Context, req entity.Id) (entity.Banne
 		createdAt, updatedAt time.Time
 	)
 
-	qeuryBuilder := r.pg.Builder.
+	queryBuilder := r.pg.Builder.
 		Select(`id, banner, created_at, updated_at`).
 		From("banner")
 
 	switch {
 	case req.ID != "":
-		qeuryBuilder = qeuryBuilder.Where("id = ?", req.ID)
+		queryBuilder = queryBuilder.Where("id = ?", req.ID)
 	default:
 		return entity.Banner{}, fmt.Errorf("GetSingle - invalid request")
 	}
 
-	qeury, args, err := qeuryBuilder.ToSql()
+	query, args, err := queryBuilder.ToSql()
 	if err != nil {
 		return entity.Banner{}, err
 	}
 
-	err = r.pg.Pool.QueryRow(ctx, qeury, args...).
+	err = r.pg.Pool.QueryRow(ctx, query, args...).
 		Scan(&response.Id, &response.ImageUrl, &createdAt, &updatedAt)
 	if err != nil {
 		return entity.Banner{}, err
@@ -85,18 +85,18 @@ func (r *BannerRepo) GetList(ctx context.Context, req entity.GetListFilter) (ent
 		createdAt, updatedAt time.Time
 	)
 
-	qeuryBuilder := r.pg.Builder.
+	queryBuilder := r.pg.Builder.
 		Select(`id, title, image_url, created_at, updated_at`).
 		From("banner")
 
-	qeuryBuilder, where := PrepareGetListQuery(qeuryBuilder, req)
+	queryBuilder, where := PrepareGetListQuery(queryBuilder, req)
 
-	qeury, args, err := qeuryBuilder.ToSql()
+	query, args, err := queryBuilder.ToSql()
 	if err != nil {
 		return response, err
 	}
 
-	rows, err := r.pg.Pool.Query(ctx, qeury, args...)
+	rows, err := r.pg.Pool.Query(ctx, query, args...)
 	if err != nil {
 		return response, err
 	}
@@ -135,12 +135,12 @@ func (r *BannerRepo) Update(ctx context.Context, req entity.Banner) (entity.Bann
 		"updated_at": "now()",
 	}
 
-	qeury, args, err := r.pg.Builder.Update("banner").SetMap(mp).Where("id = ?", req.Id).ToSql()
+	query, args, err := r.pg.Builder.Update("banner").SetMap(mp).Where("id = ?", req.Id).ToSql()
 	if err != nil {
 		return entity.Banner{}, err
 	}
 
-	_, err = r.pg.Pool.Exec(ctx, qeury, args...)
+	_, err = r.pg.Pool.Exec(ctx, query, args...)
 	if err != nil {
 		return entity.Banner{}, err
 	}
@@ -149,12 +149,12 @@ func (r *BannerRepo) Update(ctx context.Context, req entity.Banner) (entity.Bann
 }
 
 func (r *BannerRepo) Delete(ctx context.Context, req entity.Id) error {
-	qeury, args, err := r.pg.Builder.Delete("banner").Where("id = ?", req.ID).ToSql()
+	query, args, err := r.pg.Builder.Delete("banner").Where("id = ?", req.ID).ToSql()
 	if err != nil {
 		return err
 	}
 
-	_, err = r.pg.Pool.Exec(ctx, qeury, args...)
+	_, err = r.pg.Pool.Exec(ctx, query, args...)
 	if err != nil {
 		return err
 	}

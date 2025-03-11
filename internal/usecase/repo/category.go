@@ -30,14 +30,14 @@ func NewCategoryRepo(pg *postgres.Postgres, config *config.Config, logger *logge
 func (r *CategoryRepo) Create(ctx context.Context, req entity.Category) (entity.Category, error) {
 	req.Id = uuid.NewString()
 
-	qeury, args, err := r.pg.Builder.Insert("category").
+	query, args, err := r.pg.Builder.Insert("category").
 		Columns(`id, name`).
 		Values(req.Id, req.Name).ToSql()
 	if err != nil {
 		return entity.Category{}, err
 	}
 
-	_, err = r.pg.Pool.Exec(ctx, qeury, args...)
+	_, err = r.pg.Pool.Exec(ctx, query, args...)
 	if err != nil {
 		return entity.Category{}, err
 	}
@@ -51,25 +51,25 @@ func (r *CategoryRepo) GetSingle(ctx context.Context, req entity.CategorySingleR
 		createdAt, updatedAt time.Time
 	)
 
-	qeuryBuilder := r.pg.Builder.
+	queryBuilder := r.pg.Builder.
 		Select(`id, name, created_at, updated_at`).
 		From("category")
 
 	switch {
 	case req.ID != "":
-		qeuryBuilder = qeuryBuilder.Where("id = ?", req.ID)
+		queryBuilder = queryBuilder.Where("id = ?", req.ID)
 	case req.Name != "":
-		qeuryBuilder = qeuryBuilder.Where("name = ?", req.Name)
+		queryBuilder = queryBuilder.Where("name = ?", req.Name)
 	default:
 		return entity.Category{}, fmt.Errorf("GetSingle - invalid request")
 	}
 
-	qeury, args, err := qeuryBuilder.ToSql()
+	query, args, err := queryBuilder.ToSql()
 	if err != nil {
 		return entity.Category{}, err
 	}
 
-	err = r.pg.Pool.QueryRow(ctx, qeury, args...).
+	err = r.pg.Pool.QueryRow(ctx, query, args...).
 		Scan(&response.Id, &response.Name, &createdAt, &updatedAt)
 	if err != nil {
 		return entity.Category{}, err
@@ -87,18 +87,18 @@ func (r *CategoryRepo) GetList(ctx context.Context, req entity.GetListFilter) (e
 		createdAt, updatedAt time.Time
 	)
 
-	qeuryBuilder := r.pg.Builder.
+	queryBuilder := r.pg.Builder.
 		Select(`id, name, created_at, updated_at`).
 		From("category")
 
-	qeuryBuilder, where := PrepareGetListQuery(qeuryBuilder, req)
+	queryBuilder, where := PrepareGetListQuery(queryBuilder, req)
 
-	qeury, args, err := qeuryBuilder.ToSql()
+	query, args, err := queryBuilder.ToSql()
 	if err != nil {
 		return response, err
 	}
 
-	rows, err := r.pg.Pool.Query(ctx, qeury, args...)
+	rows, err := r.pg.Pool.Query(ctx, query, args...)
 	if err != nil {
 		return response, err
 	}
@@ -136,12 +136,12 @@ func (r *CategoryRepo) Update(ctx context.Context, req entity.Category) (entity.
 		"updated_at": "now()",
 	}
 
-	qeury, args, err := r.pg.Builder.Update("category").SetMap(mp).Where("id = ?", req.Id).ToSql()
+	query, args, err := r.pg.Builder.Update("category").SetMap(mp).Where("id = ?", req.Id).ToSql()
 	if err != nil {
 		return entity.Category{}, err
 	}
 
-	_, err = r.pg.Pool.Exec(ctx, qeury, args...)
+	_, err = r.pg.Pool.Exec(ctx, query, args...)
 	if err != nil {
 		return entity.Category{}, err
 	}
@@ -150,12 +150,12 @@ func (r *CategoryRepo) Update(ctx context.Context, req entity.Category) (entity.
 }
 
 func (r *CategoryRepo) Delete(ctx context.Context, req entity.Id) error {
-	qeury, args, err := r.pg.Builder.Delete("category").Where("id = ?", req.ID).ToSql()
+	query, args, err := r.pg.Builder.Delete("category").Where("id = ?", req.ID).ToSql()
 	if err != nil {
 		return err
 	}
 
-	_, err = r.pg.Pool.Exec(ctx, qeury, args...)
+	_, err = r.pg.Pool.Exec(ctx, query, args...)
 	if err != nil {
 		return err
 	}
@@ -171,12 +171,12 @@ func (r *CategoryRepo) UpdateField(ctx context.Context, req entity.UpdateFieldRe
 		mp[item.Column] = item.Value
 	}
 
-	qeury, args, err := r.pg.Builder.Update("category").SetMap(mp).Where(PrepareFilter(req.Filter)).ToSql()
+	query, args, err := r.pg.Builder.Update("category").SetMap(mp).Where(PrepareFilter(req.Filter)).ToSql()
 	if err != nil {
 		return response, err
 	}
 
-	n, err := r.pg.Pool.Exec(ctx, qeury, args...)
+	n, err := r.pg.Pool.Exec(ctx, query, args...)
 	if err != nil {
 		return response, err
 	}

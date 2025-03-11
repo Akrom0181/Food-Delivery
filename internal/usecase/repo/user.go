@@ -30,14 +30,14 @@ func NewUserRepo(pg *postgres.Postgres, config *config.Config, logger *logger.Lo
 func (r *UserRepo) Create(ctx context.Context, req entity.User) (entity.User, error) {
 	req.ID = uuid.NewString()
 
-	qeury, args, err := r.pg.Builder.Insert("users").
+	query, args, err := r.pg.Builder.Insert("users").
 		Columns(`id, full_name, email, username, password, user_type, user_role, status, profile_picture, gender, bio`).
 		Values(req.ID, req.FullName, req.Email, req.UserName, req.Password, req.UserType, req.UserRole, req.Status, req.ProfilePic, req.Gender, req.Bio).ToSql()
 	if err != nil {
 		return entity.User{}, err
 	}
 
-	_, err = r.pg.Pool.Exec(ctx, qeury, args...)
+	_, err = r.pg.Pool.Exec(ctx, query, args...)
 	if err != nil {
 		return entity.User{}, err
 	}
@@ -51,27 +51,27 @@ func (r *UserRepo) GetSingle(ctx context.Context, req entity.UserSingleRequest) 
 		createdAt, updatedAt time.Time
 	)
 
-	qeuryBuilder := r.pg.Builder.
+	queryBuilder := r.pg.Builder.
 		Select(`id, full_name, email, username, password, user_type, user_role, status, profile_picture, gender, bio, created_at, updated_at`).
 		From("users")
 
 	switch {
 	case req.ID != "":
-		qeuryBuilder = qeuryBuilder.Where("id = ?", req.ID)
+		queryBuilder = queryBuilder.Where("id = ?", req.ID)
 	case req.Email != "":
-		qeuryBuilder = qeuryBuilder.Where("email = ?", req.Email)
+		queryBuilder = queryBuilder.Where("email = ?", req.Email)
 	case req.UserName != "":
-		qeuryBuilder = qeuryBuilder.Where("username = ?", req.UserName)
+		queryBuilder = queryBuilder.Where("username = ?", req.UserName)
 	default:
 		return entity.User{}, fmt.Errorf("GetSingle - invalid request")
 	}
 
-	qeury, args, err := qeuryBuilder.ToSql()
+	query, args, err := queryBuilder.ToSql()
 	if err != nil {
 		return entity.User{}, err
 	}
 
-	err = r.pg.Pool.QueryRow(ctx, qeury, args...).
+	err = r.pg.Pool.QueryRow(ctx, query, args...).
 		Scan(&response.ID, &response.FullName, &response.Email, &response.UserName, &response.Password,
 			&response.UserType, &response.UserRole, &response.Status, &response.ProfilePic, &response.Gender, &response.Bio, &createdAt, &updatedAt)
 	if err != nil {
@@ -90,18 +90,18 @@ func (r *UserRepo) GetList(ctx context.Context, req entity.GetListFilter) (entit
 		createdAt, updatedAt time.Time
 	)
 
-	qeuryBuilder := r.pg.Builder.
+	queryBuilder := r.pg.Builder.
 		Select(`id, full_name,  email, username, password, user_type, user_role, status, profile_picture, gender, bio, created_at, updated_at`).
 		From("users")
 
-	qeuryBuilder, where := PrepareGetListQuery(qeuryBuilder, req)
+	queryBuilder, where := PrepareGetListQuery(queryBuilder, req)
 
-	qeury, args, err := qeuryBuilder.ToSql()
+	query, args, err := queryBuilder.ToSql()
 	if err != nil {
 		return response, err
 	}
 
-	rows, err := r.pg.Pool.Query(ctx, qeury, args...)
+	rows, err := r.pg.Pool.Query(ctx, query, args...)
 	if err != nil {
 		return response, err
 	}
@@ -150,12 +150,12 @@ func (r *UserRepo) Update(ctx context.Context, req entity.User) (entity.User, er
 		mp["password"] = req.Password
 	}
 
-	qeury, args, err := r.pg.Builder.Update("users").SetMap(mp).Where("id = ?", req.ID).ToSql()
+	query, args, err := r.pg.Builder.Update("users").SetMap(mp).Where("id = ?", req.ID).ToSql()
 	if err != nil {
 		return entity.User{}, err
 	}
 
-	_, err = r.pg.Pool.Exec(ctx, qeury, args...)
+	_, err = r.pg.Pool.Exec(ctx, query, args...)
 	if err != nil {
 		return entity.User{}, err
 	}
@@ -164,12 +164,12 @@ func (r *UserRepo) Update(ctx context.Context, req entity.User) (entity.User, er
 }
 
 func (r *UserRepo) Delete(ctx context.Context, req entity.Id) error {
-	qeury, args, err := r.pg.Builder.Delete("users").Where("id = ?", req.ID).ToSql()
+	query, args, err := r.pg.Builder.Delete("users").Where("id = ?", req.ID).ToSql()
 	if err != nil {
 		return err
 	}
 
-	_, err = r.pg.Pool.Exec(ctx, qeury, args...)
+	_, err = r.pg.Pool.Exec(ctx, query, args...)
 	if err != nil {
 		return err
 	}
@@ -185,12 +185,12 @@ func (r *UserRepo) UpdateField(ctx context.Context, req entity.UpdateFieldReques
 		mp[item.Column] = item.Value
 	}
 
-	qeury, args, err := r.pg.Builder.Update("users").SetMap(mp).Where(PrepareFilter(req.Filter)).ToSql()
+	query, args, err := r.pg.Builder.Update("users").SetMap(mp).Where(PrepareFilter(req.Filter)).ToSql()
 	if err != nil {
 		return response, err
 	}
 
-	n, err := r.pg.Pool.Exec(ctx, qeury, args...)
+	n, err := r.pg.Pool.Exec(ctx, query, args...)
 	if err != nil {
 		return response, err
 	}

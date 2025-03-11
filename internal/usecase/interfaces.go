@@ -75,4 +75,39 @@ type (
 		Update(ctx context.Context, req entity.Banner) (entity.Banner, error)
 		Delete(ctx context.Context, req entity.Id) error
 	}
+
+	// BranchRepo -.
+	BranchRepoI interface {
+		Create(ctx context.Context, req entity.Branch) (entity.Branch, error)
+		GetSingle(ctx context.Context, req entity.Id) (entity.Branch, error)
+		GetList(ctx context.Context, req entity.GetListFilter) (entity.BranchList, error)
+		Update(ctx context.Context, req entity.Branch) (entity.Branch, error)
+		Delete(ctx context.Context, req entity.Id) error
+		UpdateField(ctx context.Context, req entity.UpdateFieldRequest) (entity.RowsEffected, error)
+		GetNearestBranch(ctx context.Context, lat, lon float64) (entity.Branch, error)
+	}
+
+	// UserLocationRepo -.
+	UserLocationRepoI interface {
+		Create(ctx context.Context, req entity.UserLocation) (entity.UserLocation, error)
+		GetSingle(ctx context.Context, req entity.Id) (entity.UserLocation, error)
+		GetList(ctx context.Context, req entity.GetListFilter) (entity.ListUserLocation, error)
+		Update(ctx context.Context, req entity.UserLocation) (entity.UserLocation, error)
+		Delete(ctx context.Context, req entity.Id) error
+	}
+
+	OrderRepoI interface {
+		Create(ctx context.Context, req entity.Order) (entity.Order, error)
+		GetSingle(ctx context.Context, req entity.Id) (entity.Order, error)
+		GetList(ctx context.Context, req entity.GetListFilter) (entity.OrderList, error)
+		Update(ctx context.Context, req entity.Order) (entity.Order, error)
+		Delete(ctx context.Context, req entity.Id) error
+		UpdateField(ctx context.Context, req entity.UpdateFieldRequest) (entity.RowsEffected, error)
+		GetOrdersByBranch(ctx context.Context, req entity.GetListFilter) (entity.OrderList, error)
+	}
+
+	CourierRepoI interface {
+		GetNearbyCouriers(ctx context.Context, lat, lng float64, radius float64) ([]entity.Courier, error)
+		AssignOrderToCourier(ctx context.Context, orderID, courierID string) error
+	}
 )

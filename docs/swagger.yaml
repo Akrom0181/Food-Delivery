@@ -22,6 +22,34 @@ definitions:
           $ref: '#/definitions/entity.Banner'
         type: array
     type: object
+  entity.Branch:
+    properties:
+      address:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      latitude:
+        type: string
+      longitude:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  entity.BranchList:
+    properties:
+      count:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/entity.Branch'
+        type: array
+    type: object
   entity.Category:
     properties:
       created_at:
@@ -48,6 +76,15 @@ definitions:
         type: string
       message:
         type: string
+    type: object
+  entity.ListUserLocation:
+    properties:
+      count:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/entity.UserLocation'
+        type: array
     type: object
   entity.LoginRequest:
     properties:
@@ -95,6 +132,83 @@ definitions:
           $ref: '#/definitions/entity.Notification'
         type: array
     type: object
+  entity.Order:
+    properties:
+      address:
+        type: string
+      branch_id:
+        type: string
+      courier_id:
+        type: string
+      created_at:
+        type: string
+      delivery_status:
+        enum:
+        - olib ketish
+        - yetkazib berish
+        example: yetkazib berish
+        type: string
+      door_number:
+        type: integer
+      entrance:
+        type: integer
+      floor:
+        type: integer
+      id:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      order_items:
+        items:
+          $ref: '#/definitions/entity.OrderItems'
+        type: array
+      status:
+        enum:
+        - pending
+        - ' confirmed'
+        - ' cancelled'
+        - ' preparing'
+        - ' picked_up'
+        - ' delivered'
+        example: pending
+        type: string
+      total_price:
+        type: number
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  entity.OrderItems:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      order_id:
+        type: string
+      price:
+        type: number
+      product_id:
+        type: string
+      quantity:
+        type: integer
+      total_price:
+        type: number
+      updated_at:
+        type: string
+    type: object
+  entity.OrderList:
+    properties:
+      count:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/entity.Order'
+        type: array
+    type: object
   entity.Product:
     properties:
       category_id:
@@ -121,34 +235,6 @@ definitions:
       items:
         items:
           $ref: '#/definitions/entity.Product'
-        type: array
-    type: object
-  entity.Promotion:
-    properties:
-      created_at:
-        type: string
-      description:
-        type: string
-      discount_percentage:
-        type: integer
-      expires_at:
-        type: string
-      id:
-        type: string
-      started_at:
-        type: string
-      title:
-        type: string
-      user_id:
-        type: string
-    type: object
-  entity.PromotionGetList:
-    properties:
-      count:
-        type: integer
-      items:
-        items:
-          $ref: '#/definitions/entity.Promotion'
         type: array
     type: object
   entity.RegisterRequest:
@@ -270,6 +356,29 @@ definitions:
           $ref: '#/definitions/entity.User'
         type: array
     type: object
+  entity.UserLocation:
+    properties:
+      address:
+        type: string
+      created_at:
+        type: string
+      door_number:
+        type: integer
+      entrance:
+        type: integer
+      floor:
+        type: integer
+      id:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
   entity.VerifyEmail:
     properties:
       email:
@@ -285,6 +394,48 @@ info:
   title: Food Delivery API
   version: "1.0"
 paths:
+  /assign-courier/{order_id}:
+    post:
+      consumes:
+      - application/json
+      description: Retrieves an order by ID, finds the nearest available courier,
+        and assigns the order
+      parameters:
+      - description: Order ID
+        in: path
+        name: order_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Assign a courier to an order
+      tags:
+      - courier
   /auth/login:
     post:
       consumes:
@@ -541,6 +692,150 @@ paths:
       summary: Get a list of banners
       tags:
       - banner
+  /branch:
+    post:
+      consumes:
+      - application/json
+      description: Create a new branch
+      parameters:
+      - description: Branch object
+        in: body
+        name: branch
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Branch'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.Branch'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new branch
+      tags:
+      - branch
+    put:
+      consumes:
+      - application/json
+      description: Update a branch
+      parameters:
+      - description: Branch object
+        in: body
+        name: branch
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Branch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Branch'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a branch
+      tags:
+      - branch
+  /branch/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a branch
+      parameters:
+      - description: Branch ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a branch
+      tags:
+      - branch
+    get:
+      consumes:
+      - application/json
+      description: Get a branch by ID
+      parameters:
+      - description: Branch ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Branch'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a branch by ID
+      tags:
+      - branch
+  /branch/list:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of branchs
+      parameters:
+      - description: page
+        in: query
+        name: page
+        required: true
+        type: number
+      - description: limit
+        in: query
+        name: limit
+        required: true
+        type: number
+      - description: search
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.BranchList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a list of branchs
+      tags:
+      - branch
   /category:
     post:
       consumes:
@@ -952,6 +1247,198 @@ paths:
       summary: Update status a notification by ID
       tags:
       - notification
+  /order:
+    post:
+      consumes:
+      - application/json
+      description: Create a new order
+      parameters:
+      - description: Order object
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Order'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new order
+      tags:
+      - order
+    put:
+      consumes:
+      - application/json
+      description: Update a order
+      parameters:
+      - description: Order object
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Order'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a order
+      tags:
+      - order
+  /order/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a order
+      tags:
+      - order
+    get:
+      consumes:
+      - application/json
+      description: Get a order by ID
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a order by ID
+      tags:
+      - order
+  /order/bybranch:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of branch orders
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: number
+      - description: Number of results per page
+        in: query
+        name: limit
+        required: true
+        type: number
+      - description: Branch ID
+        in: query
+        name: branch_id
+        required: true
+        type: string
+      - description: Order status
+        in: query
+        name: status
+        required: true
+        type: string
+      - description: Delivery status
+        in: query
+        name: delivery_status
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.OrderList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a list of branch orders
+      tags:
+      - order
+  /order/list:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of orders
+      parameters:
+      - description: page
+        in: query
+        name: page
+        required: true
+        type: number
+      - description: limit
+        in: query
+        name: limit
+        required: true
+        type: number
+      - description: branch_id
+        in: query
+        name: branch_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.OrderList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a list of orders
+      tags:
+      - order
   /product:
     post:
       consumes:
@@ -1136,123 +1623,6 @@ paths:
       summary: Upload Multiple Files
       tags:
       - product
-  /promotion:
-    post:
-      consumes:
-      - application/json
-      description: Create a new promotion
-      parameters:
-      - description: Promotion object
-        in: body
-        name: promotion
-        required: true
-        schema:
-          $ref: '#/definitions/entity.Promotion'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/entity.Promotion'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/entity.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Create a new promotion
-      tags:
-      - promotion
-  /promotion/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a promotion
-      parameters:
-      - description: Promotion ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/entity.SuccessResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/entity.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Delete a promotion
-      tags:
-      - promotion
-    get:
-      consumes:
-      - application/json
-      description: Get a promotion by ID
-      parameters:
-      - description: Promotion ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/entity.Promotion'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/entity.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Get a promotion by ID
-      tags:
-      - promotion
-  /promotion/list:
-    get:
-      consumes:
-      - application/json
-      description: Get a list of promotions
-      parameters:
-      - description: page
-        in: query
-        name: page
-        required: true
-        type: number
-      - description: limit
-        in: query
-        name: limit
-        required: true
-        type: number
-      - description: search
-        in: query
-        name: search
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/entity.PromotionGetList'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/entity.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Get a list of promotions
-      tags:
-      - promotion
   /report:
     post:
       consumes:
@@ -1658,6 +2028,150 @@ paths:
       summary: Get a list of users
       tags:
       - user
+  /user/location:
+    post:
+      consumes:
+      - application/json
+      description: Create a new userlocation
+      parameters:
+      - description: UserLocation object
+        in: body
+        name: userlocation
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UserLocation'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.UserLocation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new userlocation
+      tags:
+      - userlocation
+    put:
+      consumes:
+      - application/json
+      description: Update a userlocation
+      parameters:
+      - description: UserLocation object
+        in: body
+        name: userlocation
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UserLocation'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.UserLocation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a userlocation
+      tags:
+      - userlocation
+  /user/location/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a userlocation
+      parameters:
+      - description: UserLocation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a userlocation
+      tags:
+      - userlocation
+    get:
+      consumes:
+      - application/json
+      description: Get a userlocation by ID
+      parameters:
+      - description: UserLocation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.UserLocation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a userlocation by ID
+      tags:
+      - userlocation
+  /user/location/list:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of userlocations
+      parameters:
+      - description: page
+        in: query
+        name: page
+        required: true
+        type: number
+      - description: limit
+        in: query
+        name: limit
+        required: true
+        type: number
+      - description: user_id
+        in: query
+        name: user_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ListUserLocation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a list of userlocations
+      tags:
+      - userlocation
   /user/upload:
     post:
       consumes:

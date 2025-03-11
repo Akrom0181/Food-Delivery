@@ -32,6 +32,18 @@ p, admin, /v1/product/*, GET|POST|PUT|DELETE
 p, user, /v1/banner/*, GET
 p, admin, /v1/banner/*, GET|POST|PUT|DELETE
 
+p, user, /v1/branch/*, GET
+p, admin, /v1/branch/*, GET|POST|PUT|DELETE
+p, courier, /v1/branch/*, GET
+
+p, user, /v1/user/location/*, GET|POST|PUT|DELETE
+p, admin, /v1/user/location/*, GET|POST|PUT|DELETE
+
+p, user, /v1/order/*, GET|POST|PUT|DELETE
+p, admin, /v1/order/*, GET|POST|PUT|DELETE
+p, courier, /v1/order/*, GET|PUT
+
 g, user, unauthorized
+g, courier, unauthorized
 g, admin, user
 g, superadmin, admin

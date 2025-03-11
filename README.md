@@ -3,7 +3,7 @@
 # Go Clean template
 [🇨🇳中文](README_CN.md)
 
-Clean Architecture template for Golang services
+Food Delivery Golang services
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/Akrom0181/Food-Delivery)](https://goreportcard.com/report/github.com/Akrom0181/Food-Delivery)
 [![License](https://img.shields.io/github/license/evrone/go-clean-template.svg)](https://github.com/Akrom0181/Food-Delivery/blob/master/LICENSE)
